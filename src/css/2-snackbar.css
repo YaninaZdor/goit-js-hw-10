@@ -1,3 +1,5 @@
+@import url('./reset.css');
+
 .form {
   max-width: 360px;
   margin-left: auto;
