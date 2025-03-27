@@ -1,43 +1,44 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-const formEl = document.querySelector('.form');
-const refs = {
-  delay: formEl.elements.delay,
-  state: formEl.elements.state,
-};
+const form = document.querySelector('.form');
 
-formEl.addEventListener('submit', event => {
+function delayPromise(delay, radioChecked) {
+  const data = { delay, radioChecked };
+
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      if (radioChecked === 'fulfilled') {
+        res(data);
+      } else {
+        rej(data);
+      }
+    }, delay);
+  });
+}
+
+form.addEventListener('submit', onSubmitBtnClick);
+
+function onSubmitBtnClick(event) {
   event.preventDefault();
-  function makePromise(delay, state) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (state === 'fulfilled') {
-          resolve(delay);
-        } else {
-          reject(delay);
-        }
-      }, delay);
-    });
-  }
 
-  const promise = makePromise(refs.delay.value, refs.state.value);
+  const form = event.target;
+  const delay = Number(form.elements.delay.value);
+  const radioChecked = form.elements.state.value;
 
-  promise
-    .then(delay => {
+  delayPromise(delay, radioChecked)
+    .then(({ delay }) => {
       iziToast.success({
-        color: 'green',
-        position: 'topRight',
-        message: `✅ Fulfilled promise in ${delay}ms`,
+        title: 'OK',
+        message: `✅ Fulfilled promise in ${delay} ms`,
       });
     })
-    .catch(delay => {
+    .catch(({ delay }) => {
       iziToast.error({
-        color: 'red',
-        position: 'topRight',
-        message: `❌ Rejected promise in ${delay}ms`,
+        title: 'Error',
+        message: `❌ Rejected promise in ${delay} ms`,
       });
     });
 
-  formEl.reset();
-});
+  form.reset();
+}
